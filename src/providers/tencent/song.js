@@ -74,6 +74,7 @@ export const get_song_url = async (song_id, cookie = '') => {
     if (purl === '') {
         const song_info = (await get_song_info(song_id))[0];
         let keyword = `${song_info['title']} ${song_info['author']}`;
+        keyword = keyword.replace('/', '&')
         // 尝试使用其他网站搜索歌曲
         result = await search_other(keyword);
         return result.data.url;
@@ -119,6 +120,10 @@ const search_other = async (keyword) => {
     const url = `https://www.gequbao.com/s/${keyword}`;
     let result = await fetch(url);
     result = await result.text();
+    // 无搜索结果
+    if(result.indexOf('热门资讯') != -1){
+        return '';
+    }
     const match = result.match(/\/music\/\d+/);
     // 获取id
     const song_id = await find_song_id(match[0]);
