@@ -69,6 +69,16 @@ export const get_song_url = async (id, cookie = '') => {
 
     result = await result.json()
     // console.log(result)
+
+    // 处理vip歌曲
+    if (purl === '') {
+        const song_info = (await get_song_info(id))[0];
+        let keyword = `${song_info['title']} ${song_info['author']}`;
+        // 尝试使用其他网站搜索歌曲
+        result = await search_other(keyword);
+        return result.data.url;
+    }
+
     if (result.req_0 && result.req_0.data && result.req_0.data.midurlinfo) {
         purl = result.req_0.data.midurlinfo[0].purl;
     }
@@ -81,6 +91,39 @@ export const get_song_url = async (id, cookie = '') => {
     // console.log(res);
     return res;
 
+}
+
+const find_download_url = async (id) => {
+    const url = 'https://www.gequbao.com/api/play-url';
+    let result = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `id=${encodeURIComponent(id)}`
+    });
+    result = await result.json();
+    return result;
+}
+
+const find_song_id = async (param) => {
+    const url = `https://www.gequbao.com${param}`;
+    let result = await fetch(url);
+    result = await result.text();
+    const match = result.match(/window\.play_id\s*=\s*'([^']+)';/);
+    return match[1];
+}
+
+const search_other = async (keyword) => {
+    // 搜索关键字
+    const url = `https://www.gequbao.com/s/${keyword}`;
+    let result = await fetch(url);
+    result = await result.text();
+    const match = result.match(/\/music\/\d+/);
+    // 获取id
+    const song_id = await find_song_id(match[0]);
+    // 获取url
+    return await find_download_url(song_id);
 }
 
 export const get_song_info = async (id, cookie = '') => {
