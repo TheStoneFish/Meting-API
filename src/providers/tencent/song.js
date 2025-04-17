@@ -1,9 +1,9 @@
 import { changeUrlQuery } from "./util.js"
 import config from "../../config.js"
 
-export const get_song_url = async (id, cookie = '') => {
+export const get_song_url = async (song_id, cookie = '') => {
 
-    id = id.split(',')
+    let id = song_id.split(',')
     let uin = ''
     let qqmusic_key = ''
     const typeObj = {
@@ -72,7 +72,7 @@ export const get_song_url = async (id, cookie = '') => {
 
     // 处理vip歌曲
     if (purl === '') {
-        const song_info = (await get_song_info(id))[0];
+        const song_info = (await get_song_info(song_id))[0];
         let keyword = `${song_info['title']} ${song_info['author']}`;
         // 尝试使用其他网站搜索歌曲
         result = await search_other(keyword);
