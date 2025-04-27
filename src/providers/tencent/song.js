@@ -111,7 +111,7 @@ const find_song_id = async (param) => {
     const url = `https://www.gequbao.com${param}`;
     let result = await fetch(url);
     result = await result.text();
-    const match = result.match(/window\.play_id\s*=\s*'([^']+)';/);
+    const match = result.match(/"play_id":"([A-Za-z0-9+/=]+)"/);
     return match[1];
 }
 
